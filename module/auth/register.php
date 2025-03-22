@@ -11,13 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = $_POST['role'];
-    $colleges_id =($_POST['role'] === '2')? $_POST['college_id'] : null; // Dean
-    $department_id = ($_POST['role'] ==='3') ? $_POST['department_id'] : null;  // Chair
-    
 
+    // Correct conditions for Dean and Chair
+    $college_id = ($role == '2') ? $_POST['college_id'] : null;      // Dean
+    $department_id = ($role == '3') ? $_POST['department_id'] : null; // Chair
+
+    // Insert into the users table
     $stmt = $conn->prepare("
-        INSERT INTO users (username, password_hash, email, role_id, department_id, , colleges_id)
-        VALUES (:username, :password, :email, :role_id, :department_id,  :colleges_id)
+        INSERT INTO users (username, password_hash, email, role_id, department_id, college_id)
+        VALUES (:username, :password, :email, :role_id, :department_id, :college_id)
     ");
 
     $stmt->execute([
@@ -26,19 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'email' => $email,
         'role_id' => $role,
         'department_id' => $department_id,
-        'course_id' => $course_id
+        'college_id' => $college_id
     ]);
 
     $_SESSION['message'] = "Account successfully registered!";
     header("Location: login.php");
+    exit();
 }
 
-// Fetch departments and courses
+// Fetch departments and colleges
 $stmtDept = $conn->query("SELECT * FROM departments");
 $departments = $stmtDept->fetchAll(PDO::FETCH_ASSOC);
-
-$stmtCourse = $conn->query("SELECT * FROM courses");
-$courses = $stmtCourse->fetchAll(PDO::FETCH_ASSOC);
 
 $stmtColleges = $conn->query("SELECT * FROM colleges");
 $colleges = $stmtColleges->fetchAll(PDO::FETCH_ASSOC);
@@ -81,23 +81,23 @@ $colleges = $stmtColleges->fetchAll(PDO::FETCH_ASSOC);
                     </select>
 
                     <!-- Dean Dropdown -->
+                    <div id="collegeSelect" class="hidden mt-4">
+                        <label>College:</label>
+                        <select name="college_id" class="border w-full p-2 rounded">
+                            <option value="">Select College</option>
+                            <?php foreach ($colleges as $college): ?>
+                                <option value="<?= $college['college_id'] ?>"><?= $college['college_name'] ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Chair Dropdown -->
                     <div id="deptSelect" class="hidden mt-4">
                         <label>Department:</label>
                         <select name="department_id" class="border w-full p-2 rounded">
                             <option value="">Select Department</option>
                             <?php foreach ($departments as $dept): ?>
                                 <option value="<?= $dept['department_id'] ?>"><?= $dept['department_name'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Chair Dropdown -->
-                    <div id="courseSelect" class="hidden mt-4">
-                        <label>Course:</label>
-                        <select name="course_id" class="border w-full p-2 rounded">
-                            <option value="">Select Course</option>
-                            <?php foreach ($courses as $course): ?>
-                                <option value="<?= $course['course_id'] ?>"><?= $course['course_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -111,8 +111,10 @@ $colleges = $stmtColleges->fetchAll(PDO::FETCH_ASSOC);
     <script>
         document.getElementById('roleSelect').addEventListener('change', function() {
             const role = this.value;
-            document.getElementById('deptSelect').classList.toggle('hidden', role !== '2');
-            document.getElementById('courseSelect').classList.toggle('hidden', role !== '3');
+
+            // Show the correct dropdowns based on the role
+            document.getElementById('collegeSelect').classList.toggle('hidden', role !== '2');
+            document.getElementById('deptSelect').classList.toggle('hidden', role !== '3');
         });
     </script>
 
