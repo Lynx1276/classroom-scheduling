@@ -17,7 +17,7 @@
             <a href="index.php" class="text-lg font-bold">PRMSU Scheduling</a>
             <div>
                 <a href="./auth/login.php" class="ml-4 hover:underline">Login</a>
-                <a href="./auth/register.php" class="ml-4 hover:underline">Register</a>
+                <a href="./module/auth/register.php" class="ml-4 hover:underline">Register</a>
             </div>
         </div>
     </nav>

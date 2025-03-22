@@ -1,0 +1,5 @@
+Royal Blue: #0033a0 → Main background and navbar
+Gold: #e3b23c → Buttons, accents, and highlights
+Dark Gold/Bronze: #b68d40 → Secondary highlights
+White: #ffffff → Text and content background
+Grayish Black: #2d2d2d → Text and footer
